@@ -135,10 +135,11 @@ class Hint {
     window.addEventListener('scroll', this.onViewChange)
     window.addEventListener('resize', this.onViewChange)
     window.addEventListener('click', this.onClick)
+    // Start before processing hints
+    this.triggerEvent('start')
     // Process hints
     this.updateHints()
     this.processKeys([])
-    this.triggerEvent('start')
   }
   stop() {
     window.removeEventListener('keydown', this.onKey, true)
