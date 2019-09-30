@@ -1,12 +1,20 @@
 class Hint {
+  // To do: Use public static fields when supported by Firefox
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Class_fields#Public_static_fields
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-  static MODIFIER_KEYS = ['Shift', 'Control', 'Alt', 'Meta']
-  static NAVIGATION_KEYS = ['ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'End', 'Home', 'PageDown', 'PageUp']
-  static KEY_MAP = {
-    Digit1: '1', Digit2: '2', Digit3: '3', Digit4: '4', Digit5: '5', Digit6: '6', Digit7: '7', Digit8: '8', Digit9: '9', Digit0: '0',
-    KeyQ: 'q', KeyW: 'w', KeyE: 'e', KeyR: 'r', KeyT: 't', KeyY: 'y', KeyU: 'u', KeyI: 'i', KeyO: 'o', KeyP: 'p',
-    KeyA: 'a', KeyS: 's', KeyD: 'd', KeyF: 'f', KeyG: 'g', KeyH: 'h', KeyJ: 'j', KeyK: 'k', KeyL: 'l',
-    KeyZ: 'z', KeyX: 'x', KeyC: 'c', KeyV: 'v', KeyB: 'b', KeyN: 'n', KeyM: 'm'
+  static MODIFIER_KEYS() {
+    return ['Shift', 'Control', 'Alt', 'Meta']
+  }
+  static NAVIGATION_KEYS() {
+    return ['ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'End', 'Home', 'PageDown', 'PageUp']
+  }
+  static KEY_MAP() {
+    return {
+      Digit1: '1', Digit2: '2', Digit3: '3', Digit4: '4', Digit5: '5', Digit6: '6', Digit7: '7', Digit8: '8', Digit9: '9', Digit0: '0',
+      KeyQ: 'q', KeyW: 'w', KeyE: 'e', KeyR: 'r', KeyT: 't', KeyY: 'y', KeyU: 'u', KeyI: 'i', KeyO: 'o', KeyP: 'p',
+      KeyA: 'a', KeyS: 's', KeyD: 'd', KeyF: 'f', KeyG: 'g', KeyH: 'h', KeyJ: 'j', KeyK: 'k', KeyL: 'l',
+      KeyZ: 'z', KeyX: 'x', KeyC: 'c', KeyV: 'v', KeyB: 'b', KeyN: 'n', KeyM: 'm'
+    }
   }
   constructor() {
     this.selectors = '*'
@@ -15,7 +23,7 @@ class Hint {
     this.hints = []
     this.inputKeys = []
     this.validatedElements = []
-    this.keyMap = Hint.KEY_MAP
+    this.keyMap = Hint.KEY_MAP()
     // Events
     this.events = {}
     this.events['validate'] = []
@@ -93,7 +101,7 @@ class Hint {
   start() {
     this.onKey = (event) => {
       // Skip modifier and navigation keys
-      if ([...Hint.MODIFIER_KEYS, ...Hint.NAVIGATION_KEYS].includes(event.key)) {
+      if ([...Hint.MODIFIER_KEYS(), ...Hint.NAVIGATION_KEYS()].includes(event.key)) {
         return
       }
       // Prevent the browsers default behavior (such as opening a link)
