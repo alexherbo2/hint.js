@@ -230,6 +230,7 @@ class Hint {
     const nodeNames = ['A', 'BUTTON', 'SELECT', 'TEXTAREA', 'INPUT', 'VIDEO']
     const roles = ['button', 'checkbox', 'combobox', 'link', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'radio', 'tab', 'textbox']
     const style = getComputedStyle(element)
-    return element.offsetParent !== null && (nodeNames.includes(element.nodeName) || roles.includes(element.getAttribute('role')) || element.hasAttribute('onclick') || style.cursor === 'pointer')
+    const parentStyle = getComputedStyle(element.parentElement)
+    return element.offsetParent !== null && (nodeNames.includes(element.nodeName) || roles.includes(element.getAttribute('role')) || element.hasAttribute('onclick') || (style.cursor === 'pointer' && parentStyle.cursor !== 'pointer'))
   }
 }
