@@ -41,6 +41,7 @@ class Hint {
         border-radius: 4px;
         box-shadow: 0 3px 1px -2px hsla(0, 0%, 0%, 0.2), 0 2px 2px 0 hsla(0, 0%, 0%, 0.14), 0 1px 5px 0 hsla(0, 0%, 0%, 0.12);
         transform: translate3d(0%, -50%, 0);
+        cursor: pointer;
       }
       .hint .character {
         font-family: Roboto, sans-serif;
@@ -49,7 +50,7 @@ class Hint {
         color: hsl(45, 81%, 10%);
         text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.6);
       }
-      .hint .character.active {
+      .hint .character.active, .hint:hover .character {
         color: hsl(44, 64%, 53%);
       }
     `
@@ -184,6 +185,12 @@ class Hint {
       container.style.left = rectangle.left + 'px'
       // Control overlapping
       container.style.zIndex = 2147483647 // 2³¹ − 1
+      // Click handler
+      container.addEventListener('click', (event) => {
+        // Stop propagation
+        event.stopImmediatePropagation()
+        this.processHint([label, element])
+      })
       shadow.append(container)
     }
     this.clearViewport()
