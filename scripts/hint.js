@@ -109,7 +109,9 @@ class Hint {
       // and stop the propagation of the event.
       event.preventDefault()
       event.stopImmediatePropagation()
-      switch (event.code) {
+      // Use event.key for layout-independent keys.
+      // Motivation: Swap Caps Lock and Escape.
+      switch (event.key) {
         case 'Escape':
           this.stop()
           break
