@@ -209,6 +209,14 @@ class Hint {
       root.remove()
     }
   }
+  static focus(element) {
+    // Leverage the `tabindex` attribute to force focus.
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex
+    if (element.tabIndex === -1) {
+      element.tabIndex = 0
+    }
+    element.focus()
+  }
   static generateHints(elements, keys) {
     const hintKeys = this.generateHintKeys(keys, elements.length)
     const hints = elements.map((element, index) => [hintKeys[index], element])
