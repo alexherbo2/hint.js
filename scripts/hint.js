@@ -25,36 +25,90 @@ class Hint {
     this.inputKeys = []
     this.validatedElements = []
     this.keyMap = Hint.KEY_MAP()
+    // State
+    this.state = {}
+    this.state.style = {}
+    // Style
+    this.style = {}
     // Events
     this.events = {}
     this.events['validate'] = []
     this.events['start'] = []
     this.events['exit'] = []
-    // Style
-    this.style = `
+  }
+  get style() {
+    return this.state.style
+  }
+  set style({
+    fontSize = 12,
+    textColor = 'hsl(45, 81%, 10%)',
+    activeCharacterTextColor = 'hsl(44, 64%, 53%)',
+    backgroundColorStart = 'hsl(56, 100%, 76%)',
+    backgroundColorEnd = 'hsl(42, 100%, 63%)',
+    borderColor = 'hsl(39, 70%, 45%)',
+    fontFamilies = ['Roboto', 'sans-serif'],
+    fontWeight = 900,
+    horizontalPadding = 0.25,
+    verticalPadding = 0.15,
+    borderWidth = 1,
+    borderRadius = 4,
+    shadow = true,
+    hintCSS = '',
+    characterCSS = '',
+    activeCharacterCSS = ''
+  }) {
+    this.state.style = {
+      fontSize,
+      textColor,
+      activeCharacterTextColor,
+      backgroundColorStart,
+      backgroundColorEnd,
+      borderColor,
+      fontFamilies,
+      fontWeight,
+      horizontalPadding,
+      verticalPadding,
+      borderWidth,
+      borderRadius,
+      shadow,
+      hintCSS,
+      characterCSS,
+      activeCharacterCSS
+    }
+  }
+  getDocumentStyle() {
+    const style = document.createElement('style')
+    style.textContent = `
       .hint {
-        padding: 0.15rem 0.25rem;
-        border: 1px solid hsl(39, 70%, 45%);
+        padding: ${this.style.verticalPadding}rem ${this.style.horizontalPadding}rem;
+        border: ${this.style.borderWidth}px solid ${this.style.borderColor};
         text-transform: uppercase;
         text-align: center;
         vertical-align: middle;
-        background: linear-gradient(to bottom, hsl(56, 100%, 76%) 0%, hsl(42, 100%, 63%) 100%);
-        border-radius: 4px;
-        box-shadow: 0 3px 1px -2px hsla(0, 0%, 0%, 0.2), 0 2px 2px 0 hsla(0, 0%, 0%, 0.14), 0 1px 5px 0 hsla(0, 0%, 0%, 0.12);
+        background: linear-gradient(to bottom, ${this.style.backgroundColorStart} 0%, ${this.style.backgroundColorEnd} 100%);
+        border-radius: ${this.style.borderRadius}px;
+        box-shadow: ${this.style.shadow
+          ? '0 3px 1px -2px hsla(0, 0%, 0%, 0.2), 0 2px 2px 0 hsla(0, 0%, 0%, 0.14), 0 1px 5px 0 hsla(0, 0%, 0%, 0.12)'
+          : ''
+        };
         transform: translate3d(0%, -50%, 0);
         cursor: pointer;
+        ${this.style.hintCSS}
       }
       .hint .character {
-        font-family: Roboto, sans-serif;
-        font-size: 12px;
-        font-weight: 900;
-        color: hsl(45, 81%, 10%);
+        font-family: ${this.style.fontFamilies.join(',')};
+        font-size: ${this.style.fontSize}px;
+        font-weight: ${this.style.fontWeight};
+        color: ${this.style.textColor};
         text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.6);
+        ${this.style.characterCSS}
       }
       .hint .character.active, .hint:hover .character {
-        color: hsl(44, 64%, 53%);
+        color: ${this.style.activeCharacterTextColor};
+        ${this.style.activeCharacterCSS}
       }
     `
+    return style
   }
   updateHints() {
     const hintableElements = Array.from(document.querySelectorAll(this.selectors)).filter((element) => this.isHintable(element))
@@ -197,11 +251,8 @@ class Hint {
       shadow.append(container)
     }
     this.clearViewport()
-    // Style
-    const style = document.createElement('style')
-    style.textContent = this.style
     // Attach
-    shadow.append(style)
+    shadow.append(this.getDocumentStyle())
     document.documentElement.append(root)
   }
   clearViewport() {
