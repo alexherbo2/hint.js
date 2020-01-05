@@ -185,7 +185,10 @@ class Hint {
       this.processKeys([])
     }
     this.onClick = (event) => {
-      this.stop()
+      const targeted = ([label, element]) => element === event.target
+      if (! this.hints.some(targeted)) {
+        this.stop()
+      }
     }
     // Use the capture method.
     //
