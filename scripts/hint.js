@@ -27,6 +27,8 @@ class Hint {
     this.keyMap = Hint.KEY_MAP()
     // State
     this.state = {}
+    this.state.observers = []
+    this.state.updateRequests = []
     this.state.style = {}
     // Style
     this.style = {}
@@ -140,6 +142,12 @@ class Hint {
     }
   }
   processHint([label, element]) {
+    // Request immediate update
+    this.requestUpdate()
+    // Observe changes in parentElement to keep hints up-to-date.
+    // Note: We could watch the whole document, but in practice,
+    // observing changes in the parent element works well enough.
+    this.observe(element.parentElement)
     this.validatedElements.push(element)
     if (this.lock === false) {
       this.stop()
@@ -153,6 +161,68 @@ class Hint {
     for (const listener of this.events[type]) {
       listener(...parameters)
     }
+  }
+  get observers() {
+    return this.state.observers
+  }
+  set observers(observers) {
+    this.state.observers = observers
+  }
+  observe(target) {
+    const options = {
+      attributes: true,
+      childList: true,
+      subtree: true
+    }
+    const observer = new MutationObserver((mutationList, observer) => {
+      for (const mutation of mutationList) {
+        switch (mutation.type) {
+          case 'childList':
+            this.requestUpdate()
+            break
+        }
+      }
+    })
+    // Register observer
+    this.observers.push(observer)
+    // Start observing
+    observer.observe(target, options)
+  }
+  clearObservers() {
+    for (const observer of this.observers) {
+      observer.disconnect()
+    }
+    this.observers = []
+  }
+  get updateRequests() {
+    return this.state.updateRequests
+  }
+  set updateRequests(handles) {
+    this.state.updateRequests = handles
+  }
+  requestUpdate() {
+    // Update hints and reset keys during the next idle period.
+    // A timeout is set to prevent resetting keys after a too long period.
+    const handle = requestIdleCallback((deadline) => {
+      this.updateHints()
+      this.processKeys([])
+      // Just update hints
+      // A second request – may be necessary, and is generally enough –
+      // to ensure elements have been rendered (after a click, for example).
+      const handle = requestIdleCallback((deadline) => {
+        this.updateHints()
+      })
+      // Register request
+      this.updateRequests.push(handle)
+    }, { timeout: 1000 })
+    // Register request
+    this.updateRequests.push(handle)
+  }
+  clearUpdateRequests() {
+    for (const handle of this.updateRequests) {
+      cancelIdleCallback(handle)
+    }
+    this.updateRequests = []
   }
   start() {
     this.onKey = (event) => {
@@ -211,6 +281,9 @@ class Hint {
     this.processKeys([])
   }
   stop() {
+    // Clear observers and update requests
+    this.clearObservers()
+    this.clearUpdateRequests()
     window.removeEventListener('keydown', this.onKey, true)
     window.removeEventListener('scroll', this.onViewChange)
     window.removeEventListener('resize', this.onViewChange)
