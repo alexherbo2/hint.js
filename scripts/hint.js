@@ -1,13 +1,21 @@
 class Hint {
-  // To do: Use public static fields when supported by Firefox
+
+  // Constants ─────────────────────────────────────────────────────────────────
+
+  // TODO: Use public static fields when supported by Firefox.
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Class_fields#Public_static_fields
+
+  // Key values
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+
   static MODIFIER_KEYS() {
     return ['Shift', 'Control', 'Alt', 'Meta']
   }
+
   static NAVIGATION_KEYS() {
     return ['ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'End', 'Home', 'PageDown', 'PageUp']
   }
+
   static KEY_MAP() {
     return {
       Digit1: '1', Digit2: '2', Digit3: '3', Digit4: '4', Digit5: '5', Digit6: '6', Digit7: '7', Digit8: '8', Digit9: '9', Digit0: '0',
@@ -16,10 +24,42 @@ class Hint {
       KeyZ: 'z', KeyX: 'x', KeyC: 'c', KeyV: 'v', KeyB: 'b', KeyN: 'n', KeyM: 'm'
     }
   }
+
+  // Settings ──────────────────────────────────────────────────────────────────
+
+  static keys() {
+    return ['KeyA', 'KeyJ', 'KeyS', 'KeyK', 'KeyD', 'KeyL', 'KeyG', 'KeyH', 'KeyE', 'KeyW', 'KeyO', 'KeyR', 'KeyU', 'KeyV', 'KeyN', 'KeyC', 'KeyM']
+  }
+
+  static style() {
+    return {
+      fontSize: 12,
+      textColor: 'hsl(45, 81%, 10%)',
+      activeCharacterTextColor: 'hsl(44, 64%, 53%)',
+      backgroundColorStart: 'hsl(56, 100%, 76%)',
+      backgroundColorEnd: 'hsl(42, 100%, 63%)',
+      borderColor: 'hsl(39, 70%, 45%)',
+      fontFamilies: ['Roboto', 'sans-serif'],
+      fontWeight: 900,
+      horizontalPadding: 0.25,
+      verticalPadding: 0.15,
+      borderWidth: 1,
+      borderRadius: 4,
+      shadow: true,
+      hintCSS: '',
+      characterCSS: '',
+      activeCharacterCSS: ''
+    }
+  }
+
+  // Methods ───────────────────────────────────────────────────────────────────
+
+  // Initialization ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   constructor() {
     this.selectors = '*'
     this.filters = [Hint.isClickable]
-    this.keys = ['KeyA', 'KeyJ', 'KeyS', 'KeyK', 'KeyD', 'KeyL', 'KeyG', 'KeyH', 'KeyE', 'KeyW', 'KeyO', 'KeyR', 'KeyU', 'KeyV', 'KeyN', 'KeyC', 'KeyM']
+    this.keys = Hint.keys()
     this.lock = false
     this.hints = []
     this.inputKeys = []
@@ -29,7 +69,7 @@ class Hint {
     this.state = {}
     this.state.observers = []
     this.state.updateRequests = []
-    this.state.style = {}
+    this.state.style = Hint.style()
     // Style
     this.style = {}
     // Events
@@ -38,46 +78,17 @@ class Hint {
     this.events['start'] = []
     this.events['exit'] = []
   }
+
+  // Style ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   get style() {
     return this.state.style
   }
-  set style({
-    fontSize = 12,
-    textColor = 'hsl(45, 81%, 10%)',
-    activeCharacterTextColor = 'hsl(44, 64%, 53%)',
-    backgroundColorStart = 'hsl(56, 100%, 76%)',
-    backgroundColorEnd = 'hsl(42, 100%, 63%)',
-    borderColor = 'hsl(39, 70%, 45%)',
-    fontFamilies = ['Roboto', 'sans-serif'],
-    fontWeight = 900,
-    horizontalPadding = 0.25,
-    verticalPadding = 0.15,
-    borderWidth = 1,
-    borderRadius = 4,
-    shadow = true,
-    hintCSS = '',
-    characterCSS = '',
-    activeCharacterCSS = ''
-  }) {
-    this.state.style = {
-      fontSize,
-      textColor,
-      activeCharacterTextColor,
-      backgroundColorStart,
-      backgroundColorEnd,
-      borderColor,
-      fontFamilies,
-      fontWeight,
-      horizontalPadding,
-      verticalPadding,
-      borderWidth,
-      borderRadius,
-      shadow,
-      hintCSS,
-      characterCSS,
-      activeCharacterCSS
-    }
+
+  set style(style) {
+    Object.assign(this.state.style, style)
   }
+
   getDocumentStyle() {
     const style = document.createElement('style')
     style.textContent = `
@@ -112,14 +123,19 @@ class Hint {
     `
     return style
   }
+
+  // Processing ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   updateHints() {
     const hintableElements = Array.from(document.querySelectorAll(this.selectors)).filter((element) => this.isHintable(element))
     this.hints = Hint.generateHints(hintableElements, this.keys)
   }
+
   filterHints(input) {
     const filteredHints = this.hints.filter(([label]) => input.every((key, index) => label[index] === key))
     return filteredHints
   }
+
   processKeys(keys, validate = false) {
     const filteredHints = this.filterHints(keys)
     switch (filteredHints.length) {
@@ -141,6 +157,7 @@ class Hint {
         }
     }
   }
+
   processHint([label, element]) {
     // Request immediate update
     this.requestUpdate()
@@ -154,20 +171,29 @@ class Hint {
     }
     this.triggerEvent('validate', element)
   }
+
+  // Events ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   on(type, listener) {
     this.events[type].push(listener)
   }
+
   triggerEvent(type, ...parameters) {
     for (const listener of this.events[type]) {
       listener(...parameters)
     }
   }
+
+  // Observers ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   get observers() {
     return this.state.observers
   }
+
   set observers(observers) {
     this.state.observers = observers
   }
+
   observe(target) {
     const options = {
       attributes: true,
@@ -188,18 +214,24 @@ class Hint {
     // Start observing
     observer.observe(target, options)
   }
+
   clearObservers() {
     for (const observer of this.observers) {
       observer.disconnect()
     }
     this.observers = []
   }
+
+  // Requests ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   get updateRequests() {
     return this.state.updateRequests
   }
+
   set updateRequests(handles) {
     this.state.updateRequests = handles
   }
+
   requestUpdate() {
     // Update hints and reset keys during the next idle period.
     // A timeout is set to prevent resetting keys after a too long period.
@@ -218,12 +250,16 @@ class Hint {
     // Register request
     this.updateRequests.push(handle)
   }
+
   clearUpdateRequests() {
     for (const handle of this.updateRequests) {
       cancelIdleCallback(handle)
     }
     this.updateRequests = []
   }
+
+  // Running ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   start() {
     this.onKey = (event) => {
       // Skip modifier and navigation keys
@@ -250,16 +286,19 @@ class Hint {
           this.processKeys(this.inputKeys.concat(event.code))
       }
     }
+
     this.onViewChange = (event) => {
       this.updateHints()
       this.processKeys([])
     }
+
     this.onClick = (event) => {
       const targeted = ([label, element]) => element === event.target
       if (! this.hints.some(targeted)) {
         this.stop()
       }
     }
+
     // Use the capture method.
     //
     // This setting is important to trigger the listeners during the capturing phase
@@ -274,12 +313,15 @@ class Hint {
     window.addEventListener('scroll', this.onViewChange)
     window.addEventListener('resize', this.onViewChange)
     window.addEventListener('click', this.onClick)
+
     // Start before processing hints
     this.triggerEvent('start')
+
     // Process hints
     this.updateHints()
     this.processKeys([])
   }
+
   stop() {
     // Clear observers and update requests
     this.clearObservers()
@@ -294,6 +336,9 @@ class Hint {
     this.inputKeys = []
     this.validatedElements = []
   }
+
+  // Rendering ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   render() {
     const root = document.createElement('div')
     root.id = 'hints'
@@ -331,12 +376,16 @@ class Hint {
     shadow.append(this.getDocumentStyle())
     document.documentElement.append(root)
   }
+
   clearViewport() {
     const root = document.querySelector('#hints')
     if (root) {
       root.remove()
     }
   }
+
+  // Focusing ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   static focus(element) {
     // Leverage the `tabindex` attribute to force focus.
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex
@@ -345,11 +394,15 @@ class Hint {
     }
     element.focus()
   }
+
+  // Generating ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
   static generateHints(elements, keys) {
     const hintKeys = this.generateHintKeys(keys, elements.length)
     const hints = elements.map((element, index) => [hintKeys[index], element])
     return hints
   }
+
   static generateHintKeys(keys, count) {
     const hints = [[]]
     let offset = 0
@@ -361,16 +414,22 @@ class Hint {
     }
     return hints.slice(offset, offset + count)
   }
+
+  // Helpers ───────────────────────────────────────────────────────────────────
+
   isHintable(element) {
     return Hint.isVisible(element) && this.filters.every((filter) => filter(element))
   }
+
   static isVisible(element) {
     return element.offsetParent !== null && this.isInViewport(element)
   }
+
   static isInViewport(element) {
     const rectangle = element.getBoundingClientRect()
     return rectangle.top >= 0 && rectangle.left >= 0 && rectangle.bottom <= window.innerHeight && rectangle.right <= window.innerWidth
   }
+
   static isClickable(element) {
     const nodeNames = ['A', 'BUTTON', 'SELECT', 'TEXTAREA', 'INPUT', 'VIDEO']
     const roles = ['button', 'checkbox', 'combobox', 'link', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'radio', 'tab', 'textbox']

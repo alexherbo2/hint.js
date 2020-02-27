@@ -1,6 +1,14 @@
-# Hint
+# hint.js
 
-> Activate links using your keyboard.
+A JavaScript library that lets you click with your keyboard.
+
+A live demo can be found in [Krabby].
+
+[Krabby]: https://krabby.netlify.com
+
+## Installation
+
+Add [`hint.js`](scripts/hint.js) to your project.
 
 ## Usage
 
@@ -10,7 +18,21 @@ hint.on('validate', (target) => target.focus())
 hint.start()
 ```
 
-More examples at [Krabby].
+**Example** – Change the default appearance:
+
+``` javascript
+hint.style = {
+  textColor: 'royalblue',
+  activeCharacterTextColor: 'lightsteelblue',
+  backgroundColorStart: 'white',
+  backgroundColorEnd: 'ghostwhite',
+  borderColor: 'ghostwhite'
+}
+```
+
+You can find some examples in [Krabby].
+
+See the [source](scripts/hint.js) for a complete reference.
 
 ## Appearance
 
@@ -32,22 +54,3 @@ hintCSS: ''
 characterCSS: ''
 activeCharacterCSS: ''
 ```
-
-**Example** – Change the default appearance:
-
-``` javascript
-hint.style = {
-  textColor: 'royalblue',
-  activeCharacterTextColor: 'lightsteelblue',
-  backgroundColorStart: 'white',
-  backgroundColorEnd: 'ghostwhite',
-  borderColor: 'ghostwhite'
-}
-```
-
-## References
-
-- [Create a keyboard interface to the web]
-
-[Krabby]: https://krabby.netlify.com
-[Create a keyboard interface to the web]: https://alexherbo2.github.io/blog/chrome/create-a-keyboard-interface-to-the-web/
