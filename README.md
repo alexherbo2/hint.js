@@ -10,7 +10,7 @@ A live demo can be found in [Krabby].
 
 ## Installation
 
-Add [`hint.js`](scripts/hint.js) to your project.
+Add [`hint.js`](src/hint.js) to your project.
 
 ## Usage
 
