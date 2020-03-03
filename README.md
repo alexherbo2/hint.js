@@ -1,6 +1,6 @@
 # hint.js
 
-###### [Demo][Krabby] | [Getting started](doc/tutorial.md)
+###### [Demo][Krabby] | [Getting started](docs/tutorial.md)
 
 A JavaScript library that lets you click with your keyboard.
 
@@ -24,4 +24,4 @@ hint.start()
 
 You can find some examples in [Krabby].
 
-Read the [documentation](doc) for a complete reference.
+Read the [documentation](docs) for a complete reference.
