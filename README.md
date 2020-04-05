@@ -6,7 +6,7 @@ A JavaScript library that lets you click with your keyboard.
 
 A live demo can be found in [Krabby].
 
-[Krabby]: https://krabby.netlify.com
+[Krabby]: https://krabby.netlify.app
 
 ## Installation
 
