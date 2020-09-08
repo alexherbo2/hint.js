@@ -65,13 +65,16 @@ class Hint {
     this.inputKeys = []
     this.validatedElements = []
     this.keyMap = Hint.KEY_MAP()
+
     // State
     this.state = {}
     this.state.observers = []
     this.state.updateRequests = []
     this.state.style = Hint.style()
+
     // Style
     this.style = {}
+
     // Events
     this.events = {}
     this.events['validate'] = []
@@ -91,6 +94,7 @@ class Hint {
 
   getDocumentStyle() {
     const style = document.createElement('style')
+
     style.textContent = `
       .hint {
         padding: ${this.style.verticalPadding}rem ${this.style.horizontalPadding}rem;
@@ -108,6 +112,7 @@ class Hint {
         cursor: pointer;
         ${this.style.hintCSS}
       }
+
       .hint .character {
         font-family: ${this.style.fontFamilies.join(',')};
         font-size: ${this.style.fontSize}px;
@@ -116,11 +121,13 @@ class Hint {
         text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.6);
         ${this.style.characterCSS}
       }
+
       .hint .character.active, .hint:hover .character {
         color: ${this.style.activeCharacterTextColor};
         ${this.style.activeCharacterCSS}
       }
     `
+
     return style
   }
 
@@ -128,11 +135,13 @@ class Hint {
 
   updateHints() {
     const hintableElements = Array.from(document.querySelectorAll(this.selectors)).filter((element) => this.isHintable(element))
+
     this.hints = Hint.generateHints(hintableElements, this.keys)
   }
 
   filterHints(input) {
     const filteredHints = this.hints.filter(([label]) => input.every((key, index) => label[index] === key))
+
     return filteredHints
   }
 
@@ -141,16 +150,19 @@ class Hint {
     switch (filteredHints.length) {
       case 0:
         break
+
       case 1:
         this.inputKeys = []
         this.render()
         this.processHint(filteredHints[0])
         break
+
       default:
         if (validate) {
           this.inputKeys = []
           this.render()
           this.processHint(filteredHints[0])
+
         } else {
           this.inputKeys = keys
           this.render()
@@ -161,14 +173,17 @@ class Hint {
   processHint([label, element]) {
     // Request immediate update
     this.requestUpdate()
+
     // Observe changes in parentElement to keep hints up-to-date.
     // Note: We could watch the whole document, but in practice,
     // observing changes in the parent element works well enough.
     this.observe(element.parentElement)
     this.validatedElements.push(element)
+
     if (this.lock === false) {
       this.stop()
     }
+
     this.triggerEvent('validate', element)
   }
 
@@ -200,6 +215,7 @@ class Hint {
       childList: true,
       subtree: true
     }
+
     const observer = new MutationObserver((mutationList, observer) => {
       for (const mutation of mutationList) {
         switch (mutation.type) {
@@ -209,8 +225,10 @@ class Hint {
         }
       }
     })
+
     // Register observer
     this.observers.push(observer)
+
     // Start observing
     observer.observe(target, options)
   }
@@ -238,15 +256,18 @@ class Hint {
     const handle = requestIdleCallback((deadline) => {
       this.updateHints()
       this.processKeys([])
+
       // Just update hints
       // A second request – may be necessary, and is generally enough –
       // to ensure elements have been rendered (after a click, for example).
       const handle = requestIdleCallback((deadline) => {
         this.updateHints()
       })
+
       // Register request
       this.updateRequests.push(handle)
     }, { timeout: 1000 })
+
     // Register request
     this.updateRequests.push(handle)
   }
@@ -266,10 +287,12 @@ class Hint {
       if ([...Hint.MODIFIER_KEYS(), ...Hint.NAVIGATION_KEYS()].includes(event.key)) {
         return
       }
+
       // Prevent the browsers default behavior (such as opening a link)
       // and stop the propagation of the event.
       event.preventDefault()
       event.stopImmediatePropagation()
+
       // Use event.key for layout-independent keys.
       // Motivation: Swap Caps Lock and Escape.
       switch (event.key) {
@@ -326,12 +349,16 @@ class Hint {
     // Clear observers and update requests
     this.clearObservers()
     this.clearUpdateRequests()
+
     window.removeEventListener('keydown', this.onKey, true)
     window.removeEventListener('scroll', this.onViewChange)
     window.removeEventListener('resize', this.onViewChange)
     window.removeEventListener('click', this.onClick)
+
     this.clearViewport()
+
     this.triggerEvent('exit', this.validatedElements)
+
     this.hints = []
     this.inputKeys = []
     this.validatedElements = []
@@ -342,36 +369,48 @@ class Hint {
   render() {
     const root = document.createElement('div')
     root.id = 'hints'
+
     // Place the hints in a closed shadow root,
     // so that the hint and page styles won’t affect each other.
     const shadow = root.attachShadow({ mode: 'closed' })
+
     for (const [label, element] of this.filterHints(this.inputKeys)) {
       const container = document.createElement('div')
       container.classList.add('hint')
+
       for (const [index, code] of label.entries()) {
         const atom = document.createElement('span')
         atom.classList.add('character', code === this.inputKeys[index] ? 'active' : 'normal')
         atom.textContent = this.keyMap[code]
         container.append(atom)
       }
+
       const rectangle = element.getBoundingClientRect()
+
       // Place hints relative to the viewport
       container.style.position = 'fixed'
+
       // Vertical placement: center
       container.style.top = rectangle.top + (rectangle.height / 2) + 'px'
+
       // Horizontal placement: left
       container.style.left = rectangle.left + 'px'
+
       // Control overlapping
       container.style.zIndex = 2147483647 // 2³¹ − 1
+
       // Click handler
       container.addEventListener('click', (event) => {
         // Stop propagation
         event.stopImmediatePropagation()
         this.processHint([label, element])
       })
+
       shadow.append(container)
     }
+
     this.clearViewport()
+
     // Attach
     shadow.append(this.getDocumentStyle())
     document.documentElement.append(root)
@@ -392,6 +431,7 @@ class Hint {
     if (element.tabIndex === -1) {
       element.tabIndex = 0
     }
+
     element.focus()
   }
 
@@ -400,6 +440,7 @@ class Hint {
   static generateHints(elements, keys) {
     const hintKeys = this.generateHintKeys(keys, elements.length)
     const hints = elements.map((element, index) => [hintKeys[index], element])
+
     return hints
   }
 
@@ -412,6 +453,7 @@ class Hint {
         hints.push(hint.concat(key))
       }
     }
+
     return hints.slice(offset, offset + count)
   }
 
@@ -427,6 +469,7 @@ class Hint {
 
   static isInViewport(element) {
     const rectangle = element.getBoundingClientRect()
+
     return rectangle.top >= 0 && rectangle.left >= 0 && rectangle.bottom <= window.innerHeight && rectangle.right <= window.innerWidth
   }
 
@@ -435,6 +478,7 @@ class Hint {
     const roles = ['button', 'checkbox', 'combobox', 'link', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'radio', 'tab', 'textbox']
     const style = getComputedStyle(element)
     const parentStyle = getComputedStyle(element.parentElement)
+
     return element.offsetParent !== null && (nodeNames.includes(element.nodeName) || roles.includes(element.getAttribute('role')) || element.hasAttribute('onclick') || (style.cursor === 'pointer' && parentStyle.cursor !== 'pointer'))
   }
 }
